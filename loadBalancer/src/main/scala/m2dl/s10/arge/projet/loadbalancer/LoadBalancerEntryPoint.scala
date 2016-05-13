@@ -1,12 +1,15 @@
+package m2dl.s10.arge.projet.loadbalancer
+
 import m2dl.s10.arge.projet.common.config.ConfigHandler
 import m2dl.s10.arge.projet.common.util.XMLRPCServer
 import org.slf4j.LoggerFactory
 import net.ceedubs.ficus.Ficus._
 
+
 /**
   * Created by Zac on 13/05/16.
   */
-object CPNEntryPoint {
+object LoadBalancerEntryPoint {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -15,7 +18,7 @@ object CPNEntryPoint {
     var xmlrpcServer: Option[XMLRPCServer] = None
 
     try {
-      val rpcPort = ConfigHandler.getConfig.as[Int]("app.openStack.xmlRpc.computenodePort")
+      val rpcPort = ConfigHandler.getConfig.as[Int]("app.openStack.xmlRpc.loadbalancerPort")
       xmlrpcServer = Option(new XMLRPCServer(rpcPort, Thread.currentThread.getContextClassLoader))
       xmlrpcServer.get.start()
     }
@@ -31,6 +34,6 @@ object CPNEntryPoint {
           logger.info("Stopping server...")
           xmlrpcServer.get.stop()
         }}}, "Shutdown"))
-
   }
+
 }
