@@ -8,7 +8,7 @@ import m2dl.s10.arge.projet.loadbalancer.core.protocol.LoadBalancerProtocol._
   */
 class ManagerActor extends Actor with ActorLogging {
 
-  val watcherActor = context.actorOf(Props[WatcherActor], "StatsWatcher")
+  val watcherActor = context.actorOf(Props[MonitoringActor], "StatsMonitor")
   //Iterator.continually(List(1, 2, 3, 4)).flatten TODO roundRobing load division
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ class ManagerActor extends Actor with ActorLogging {
 
   override def receive: Receive = waitingJobCompletion orElse {
 
-    case NewComputationJob(jobId, jobDescription) =>
+    case NewComputationJob(computationJob) =>
       log.debug("received computation request forwarding to worker nodes")
 
     case DeleteWorkerInstance =>

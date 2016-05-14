@@ -7,7 +7,7 @@ import m2dl.s10.arge.projet.common.util.{IComputationWork, PICalculator}
   */
 class Worker extends IComputationWork  {
 
-  override def getPIWithDecimals(nbDecimals: Int): BigDecimal = {
-    PICalculator.computePIValueForDecimals(nbDecimals)
+  override def getPIWithDecimals(nbDecimals: Int): Option[BigDecimal] = {
+    Option(PICalculator.computePIValueForDecimals(nbDecimals))
   }
 }

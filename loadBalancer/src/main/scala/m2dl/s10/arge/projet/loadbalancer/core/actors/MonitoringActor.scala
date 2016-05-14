@@ -5,7 +5,7 @@ import akka.actor.{Actor, ActorLogging}
 /**
   * Created by Zac on 14/05/16.
   */
-class WatcherActor extends Actor with ActorLogging{
+class MonitoringActor extends Actor with ActorLogging{
 
   // -------------------------------------------------------------------------------------------------------------------
   // -------------------------------------- Hooks ----------------------------------------------------------------------

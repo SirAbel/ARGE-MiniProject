@@ -7,5 +7,5 @@ import java.math.BigDecimal
   */
 trait IComputationWork {
 
-  def getPIWithDecimals(nbDecimals: Int): BigDecimal
+  def getPIWithDecimals(nbDecimals: Int): Option[BigDecimal]
 }
