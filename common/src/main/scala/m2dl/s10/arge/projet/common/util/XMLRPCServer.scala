@@ -31,11 +31,11 @@ class XMLRPCServer(listeningPort: Int = XMLRPCServer.DEFAULT_LISTENING_PORT, cla
   @throws[IOException]
   def start() = {
     XMLRPCServer.logger.info("Starting server on port=[{}]...", listeningPort)
-    this.webServer.start
+    this.webServer.start()
     XMLRPCServer.logger.info("Server has been started on port=[{}]", listeningPort)
   }
 
   def stop() = {
-    this.webServer.shutdown
+    this.webServer.shutdown()
   }
 }

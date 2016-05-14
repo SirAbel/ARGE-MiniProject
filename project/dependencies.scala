@@ -33,4 +33,10 @@ object ARGEDependencies {
     val logging = "commons-logging" % "commons-logging" % "1.0.1"
     val codec = "commons-codec" % "commons-codec" % "1.10"
   }
+
+  object Akka {
+    val actors = "com.typesafe.akka" % "akka-actor_2.11" % "2.4.4"
+
+
+  }
 }

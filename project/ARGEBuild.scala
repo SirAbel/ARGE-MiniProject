@@ -34,6 +34,8 @@ object ARGEBuild extends Build {
 
   lazy val computeNode = ARGEBuildSettings.project("computeNode").dependsOn(common)
 
-  lazy val loadBalancer = ARGEBuildSettings.project("loadBalancer").dependsOn(common)
+  lazy val loadBalancer = ARGEBuildSettings.project("loadBalancer").dependsOn(common).libraryDependencies(
+    ARGEDependencies.Akka.actors
+  )
 
 }

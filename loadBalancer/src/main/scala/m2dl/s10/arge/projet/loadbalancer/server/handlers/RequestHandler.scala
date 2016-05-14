@@ -1,4 +1,4 @@
-package m2dl.s10.arge.projet.loadbalancer.handlers
+package m2dl.s10.arge.projet.loadbalancer.server.handlers
 
 import java.math.BigDecimal
 

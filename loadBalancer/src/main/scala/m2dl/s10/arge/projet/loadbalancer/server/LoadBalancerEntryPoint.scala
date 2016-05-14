@@ -1,9 +1,11 @@
-package m2dl.s10.arge.projet.loadbalancer
+package m2dl.s10.arge.projet.loadbalancer.server
 
+import akka.actor.{ActorSystem, Props}
 import m2dl.s10.arge.projet.common.config.ConfigHandler
 import m2dl.s10.arge.projet.common.util.XMLRPCServer
-import org.slf4j.LoggerFactory
+import m2dl.s10.arge.projet.loadbalancer.core.actors.ManagerActor
 import net.ceedubs.ficus.Ficus._
+import org.slf4j.LoggerFactory
 
 
 /**
@@ -12,6 +14,8 @@ import net.ceedubs.ficus.Ficus._
 object LoadBalancerEntryPoint {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
+  private val system = ActorSystem("loadBalancingSystem")
+  val manager = system.actorOf(Props[ManagerActor], "loadBalancingManager")
 
   def main(args: Array[String]) {
 
@@ -21,6 +25,7 @@ object LoadBalancerEntryPoint {
       val rpcPort = ConfigHandler.getConfig.as[Int]("app.openStack.xmlRpc.loadbalancerPort")
       xmlrpcServer = Option(new XMLRPCServer(rpcPort, Thread.currentThread.getContextClassLoader))
       xmlrpcServer.get.start()
+
     }
     catch {
       case e: Exception =>
