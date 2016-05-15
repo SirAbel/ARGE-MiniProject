@@ -18,6 +18,7 @@ object LoadGeneratorEntryPoint {
 
   private val logger: Logger = LoggerFactory.getLogger(this.getClass)
   private val DEFAULT_NB_DECIMALS = ConfigHandler.getConfig.getInt("app.openStack.defaults.nbDecimals")
+  private val DEFAULT_BURST_INTERVAL = ConfigHandler.getConfig.getInt("app.openStack.defaults.burstInterval")
 
   def main(args: Array[String]) {
 
@@ -45,7 +46,10 @@ object LoadGeneratorEntryPoint {
       }
     }
 
-    while(true) { sendBatch(LoadType(rndom.nextInt(LoadType.maxId)).id) }
+    while(true) {
+      sendBatch(LoadType(rndom.nextInt(LoadType.maxId)).id)
+      Thread.sleep(DEFAULT_BURST_INTERVAL)
+    }
   }
 
   private def logAndExit(msg: String, e: Throwable) = {
