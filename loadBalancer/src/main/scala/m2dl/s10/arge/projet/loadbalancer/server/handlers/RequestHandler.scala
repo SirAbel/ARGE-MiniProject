@@ -5,7 +5,7 @@ import java.util.concurrent.{TimeUnit, TimeoutException}
 
 import akka.pattern.ask
 import akka.util.Timeout
-import m2dl.s10.arge.projet.common.util.IComputationWork
+import m2dl.s10.arge.projet.common.IComputationWork
 import m2dl.s10.arge.projet.loadbalancer.core.model.{ComputationJob, JobDescription, JobOutcomeType}
 import m2dl.s10.arge.projet.loadbalancer.core.protocol.LoadBalancerProtocol.ComputationJobOutcome
 import m2dl.s10.arge.projet.loadbalancer.server.LoadBalancerEntryPoint
@@ -20,7 +20,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class RequestHandler extends IComputationWork{
 
   override def getPIWithDecimals(nbDecimals: Int): Option[BigDecimal] = {
-    val jobDescription = JobDescription("compute", new Array(nbDecimals), classOf[Option[BigDecimal]])
+    val params = Array.fill[Int](1)(nbDecimals)
+    val jobDescription = JobDescription("compute", params.asInstanceOf[Array[Object]], classOf[Option[BigDecimal]])
     val computationJob = ComputationJob(jobDescription = jobDescription)
 
     implicit val timeout = Timeout(FiniteDuration(30, TimeUnit.SECONDS))

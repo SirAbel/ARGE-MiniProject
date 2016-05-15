@@ -2,6 +2,7 @@ package m2dl.s10.arge.loadgenerator
 
 import java.math.BigDecimal
 import java.net.URL
+import java.util.concurrent.TimeUnit
 
 import m2dl.s10.arge.loadgenerator.objs.LoadType
 import m2dl.s10.arge.loadgenerator.util.LoadGeneratorException
@@ -9,6 +10,7 @@ import m2dl.s10.arge.projet.common.config.ConfigHandler
 import m2dl.s10.arge.projet.common.util.XMLRPCClient
 import org.slf4j.{Logger, LoggerFactory}
 
+import scala.concurrent.duration.FiniteDuration
 import scala.util.Random
 
 /**
@@ -41,14 +43,14 @@ object LoadGeneratorEntryPoint {
 
     def sendBatch(upperLimit: Int): Unit = {
       for(k <- 0 until upperLimit) {
-        val params = new Array[Object](DEFAULT_NB_DECIMALS)
-        client.send("compute",params,classOf[Option[BigDecimal]]).foreach(rslt => println(s"computation[$k] - result: $rslt"))
+        val params = Array.fill[Int](1)(DEFAULT_NB_DECIMALS)
+        client.send("compute",params.asInstanceOf[Array[Object]],classOf[Option[BigDecimal]]).foreach(rslt => println(s"computation[$k] - result: $rslt"))
       }
     }
 
     while(true) {
       sendBatch(LoadType(rndom.nextInt(LoadType.maxId)).id)
-      Thread.sleep(DEFAULT_BURST_INTERVAL)
+      Thread.sleep(FiniteDuration(DEFAULT_BURST_INTERVAL,TimeUnit.MICROSECONDS).toMillis)
     }
   }
 

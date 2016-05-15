@@ -1,7 +1,9 @@
+package m2dl.s10.arge.computeNode
+
 import m2dl.s10.arge.projet.common.config.ConfigHandler
 import m2dl.s10.arge.projet.common.util.XMLRPCServer
-import org.slf4j.LoggerFactory
 import net.ceedubs.ficus.Ficus._
+import org.slf4j.LoggerFactory
 
 /**
   * Created by Zac on 13/05/16.

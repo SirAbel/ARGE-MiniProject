@@ -26,7 +26,8 @@ object ARGEBuild extends Build {
     ARGEDependencies.XmlRpc.common,
     ARGEDependencies.XmlRpc.client,
 
-    ARGEDependencies.Commons.codec
+    ARGEDependencies.Commons.codec,
+    ARGEDependencies.Monitoring.oshi
 
   )
 

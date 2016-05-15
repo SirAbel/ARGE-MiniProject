@@ -1,4 +1,4 @@
-package m2dl.s10.arge.projet.common.util
+package m2dl.s10.arge.projet.common
 
 import java.math.BigDecimal
 

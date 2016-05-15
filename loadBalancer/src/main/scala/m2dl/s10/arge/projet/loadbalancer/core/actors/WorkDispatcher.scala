@@ -34,7 +34,7 @@ class WorkDispatcher extends Actor with ActorLogging {
   override def receive: Receive = {
     case RunJobOnWorkerNode(client, workerNode,computationJob) =>
       log.debug("received work request...")
-      val (result, outcome) = runTask(workerNode.hostname,computationJob.jobDescription)
+      val (result, outcome) = runTask(workerNode.serverUrl,computationJob.jobDescription)
       sender() ! JobPerformed(workerNode.nodeId, computationJob.jobId)
       client ! ComputationJobOutcome(computationJob.jobId, outcome,result)
   }

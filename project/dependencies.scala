@@ -36,7 +36,9 @@ object ARGEDependencies {
 
   object Akka {
     val actors = "com.typesafe.akka" % "akka-actor_2.11" % "2.4.4"
+  }
 
-
+  object Monitoring {
+    val oshi = "com.github.dblock" % "oshi-core" % "2.2"
   }
 }

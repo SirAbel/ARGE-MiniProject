@@ -18,8 +18,12 @@ object LoadBalancerProtocol {
   case class ComputationJobOutcome(jobId: String, status: JobOutcomeType, result: Option[BigDecimal])
 
   //Monitoring messages
-  case object GetNodesStats
-  case class DeleteWorkerInstance(workerNodeId: String)
-  case object AddWorkerInstance
+  case class RegisterNode(workerNode: WorkerNode)
+  case class UnregisterNode(workerNodeId: String)
+  case object StartMonitoring
+
+  sealed trait Operation
+  case class DeleteWorkerInstance(workerNodeId: String) extends Operation
+  case object AddWorkerInstance extends Operation
 
 }

@@ -1,8 +1,11 @@
 package m2dl.s10.arge.projet.loadbalancer.core.actors
 
 import akka.actor.{Actor, ActorLogging, Props}
+import akka.routing.RoundRobinPool
+import m2dl.s10.arge.projet.common.security.OpenStackUtils
 import m2dl.s10.arge.projet.loadbalancer.core.model.WorkerNode
 import m2dl.s10.arge.projet.loadbalancer.core.protocol.LoadBalancerProtocol._
+import m2dl.s10.arge.projet.loadbalancer.core.util.LoadBalancerException
 
 import scala.collection.immutable.HashMap
 
@@ -11,13 +14,16 @@ import scala.collection.immutable.HashMap
   */
 class ManagerActor extends Actor with ActorLogging {
 
-  val monitoringActor = context.actorOf(Props[MonitoringActor], "StatsMonitor")
-  val workDispatcher = context.actorOf(Props[WorkDispatcher], "WorkDispatcher")
+  val (minRunningNodes, routerPoolSize) = {
+    val conf = context.system.settings.config
+    conf.getInt("app.openstack.defaults.minRunningNodes") -> conf.getInt("app.openstack.defaults.routerPoolSize")
+  }
 
-  val minRunningNodes = context.system.settings.config.getInt("")
+  val monitoringActor = context.actorOf(Props(classOf[MonitoringActor],self), "StatsMonitor")
+  val workDispatcher = context.actorOf(RoundRobinPool(routerPoolSize).props(Props[WorkDispatcher]), "WorkDispatcher")
 
   var runningJobs: Set[String] = Set.empty
-  var runningWorkerNodeInstances: HashMap[String, WorkerNode] = HashMap.empty
+  var runningWorkerNodeInstances: HashMap[String, WorkerNode] = initRunningNodes(minRunningNodes)
   var roundRobinWorkerNodesSelector: Iterator[String] = Iterator.continually(runningWorkerNodeInstances.keySet).flatten
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -71,6 +77,7 @@ class ManagerActor extends Actor with ActorLogging {
       val workerNode = createNewWorkerNodeInstance()
       runningWorkerNodeInstances = runningWorkerNodeInstances + ((workerNode.nodeId, workerNode))
       roundRobinWorkerNodesSelector = Iterator.continually(runningWorkerNodeInstances.keySet).flatten
+      monitoringActor ! RegisterNode(workerNode)
 
   }
 
@@ -93,13 +100,48 @@ class ManagerActor extends Actor with ActorLogging {
   // ---------------------------------- Helper methods -----------------------------------------------------------------
   // -------------------------------------------------------------------------------------------------------------------
 
-  def createNewWorkerNodeInstance(): WorkerNode = ???
+  private def createNewWorkerNodeInstance(): WorkerNode = {
+    val prefix: String = "zzya-tbla-computenode-"
+    val userData = ""
 
-  def deleteWorkerNodeInstance(workerNode: WorkerNode): Unit = {
-    //TODO OpenStack api request
+    val client = OpenStackUtils.authenticate()
+
+    val server = OpenStackUtils.createServer(client, prefix, userData)
+    val serverUrlOption = Option(server.getAddresses).collect {
+      case addresses if !addresses.getAddresses().isEmpty =>
+        addresses.getAddresses().values().iterator().next().get(0).getAddr
+    }
+
+    val serverUrl = serverUrlOption.getOrElse{
+      OpenStackUtils.delete(client, server.getId)
+      throw new LoadBalancerException.MissingServerAddress(s"The server=[${server.getName}] does not have any address")
+    }
+
+    WorkerNode(server.getId, serverUrl)
+  }
+
+  private def deleteWorkerNodeInstance(workerNode: WorkerNode): Unit = {
+    val client = OpenStackUtils.authenticate()
+
+    OpenStackUtils.delete(client,workerNode.nodeId)
 
     runningWorkerNodeInstances = runningWorkerNodeInstances - workerNode.nodeId
     roundRobinWorkerNodesSelector = Iterator.continually(runningWorkerNodeInstances.keySet).flatten
+    monitoringActor ! UnregisterNode(workerNode.nodeId)
 
   }
+
+  private def initRunningNodes(minRunningNodes: Int) = {
+    var map = HashMap.empty[String, WorkerNode]
+
+    for (k <- 0 until minRunningNodes) {
+      val temp = createNewWorkerNodeInstance()
+      map = map + ((temp.nodeId, temp))
+      monitoringActor ! RegisterNode(temp)
+    }
+
+    monitoringActor ! StartMonitoring
+    map
+  }
+
 }
