@@ -2,7 +2,8 @@ package m2dl.s10.arge.projet.loadbalancer.core.protocol
 
 import java.math.BigDecimal
 
-import m2dl.s10.arge.projet.loadbalancer.core.model.ComputationJob
+import akka.actor.ActorRef
+import m2dl.s10.arge.projet.loadbalancer.core.model.{ComputationJob, WorkerNode}
 import m2dl.s10.arge.projet.loadbalancer.core.model.JobOutcomeType.JobOutcomeType
 
 /**
@@ -12,11 +13,13 @@ object LoadBalancerProtocol {
 
   //Job request messages
   case class NewComputationJob(computationJob: ComputationJob)
+  case class RunJobOnWorkerNode(client:ActorRef, workerNode: WorkerNode, computationJob: ComputationJob)
+  case class JobPerformed(workerNodeId: String, jobId: String)
   case class ComputationJobOutcome(jobId: String, status: JobOutcomeType, result: Option[BigDecimal])
 
   //Monitoring messages
   case object GetNodesStats
-  case object DeleteWorkerInstance
+  case class DeleteWorkerInstance(workerNodeId: String)
   case object AddWorkerInstance
 
 }
