@@ -1,10 +1,15 @@
 package m2dl.s10.arge.loadgenerator
 
+import java.math.BigDecimal
 import java.net.URL
 
+import m2dl.s10.arge.loadgenerator.objs.LoadType
 import m2dl.s10.arge.loadgenerator.util.LoadGeneratorException
+import m2dl.s10.arge.projet.common.config.ConfigHandler
 import m2dl.s10.arge.projet.common.util.XMLRPCClient
 import org.slf4j.{Logger, LoggerFactory}
+
+import scala.util.Random
 
 /**
   * Created by Zac on 13/05/16.
@@ -12,6 +17,7 @@ import org.slf4j.{Logger, LoggerFactory}
 object LoadGeneratorEntryPoint {
 
   private val logger: Logger = LoggerFactory.getLogger(this.getClass)
+  private val DEFAULT_NB_DECIMALS = ConfigHandler.getConfig.getInt("app.openStack.defaults.nbDecimals")
 
   def main(args: Array[String]) {
 
@@ -29,7 +35,18 @@ object LoadGeneratorEntryPoint {
     }
   }
 
-  private def generateRandomCharge(client: XMLRPCClient) = ???
+  private def generateRandomCharge(client: XMLRPCClient) = {
+    val rndom = Random
+
+    def sendBatch(upperLimit: Int): Unit = {
+      for(k <- 0 until upperLimit) {
+        val params = new Array[Object](DEFAULT_NB_DECIMALS)
+        client.send("compute",params,classOf[Option[BigDecimal]]).foreach(rslt => println(s"computation[$k] - result: $rslt"))
+      }
+    }
+
+    while(true) { sendBatch(LoadType(rndom.nextInt(LoadType.maxId)).id) }
+  }
 
   private def logAndExit(msg: String, e: Throwable) = {
     logger.error(msg,e)
