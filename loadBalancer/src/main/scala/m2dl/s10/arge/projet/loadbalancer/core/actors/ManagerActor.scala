@@ -46,7 +46,7 @@ class ManagerActor extends Actor with ActorLogging {
       val workerNodeId = roundRobinWorkerNodesSelector.next()
       runningWorkerNodeInstances.get(workerNodeId).collect {
         case workerNode =>
-          val updatedNode = workerNode.copy(workerNode.runningWorks + 1)
+          val updatedNode = workerNode.copy(runningWorks = workerNode.runningWorks + 1)
         runningWorkerNodeInstances = runningWorkerNodeInstances.updated(workerNodeId,updatedNode)
         workDispatcher ! RunJobOnWorkerNode(sender(),updatedNode, computationJob)
       }
@@ -81,7 +81,7 @@ class ManagerActor extends Actor with ActorLogging {
       runningJobs -= jobId
       runningWorkerNodeInstances.get(workerNodeId).collect {
         case workerNode =>
-          val updatedWorkerNode = workerNode.copy(workerNode.runningWorks - 1)
+          val updatedWorkerNode = workerNode.copy(runningWorks = workerNode.runningWorks - 1)
           runningWorkerNodeInstances = runningWorkerNodeInstances.updated(workerNodeId,updatedWorkerNode)
           if(updatedWorkerNode.runningWorks == 0 && updatedWorkerNode.pendingDelete){
             deleteWorkerNodeInstance(updatedWorkerNode)

@@ -20,7 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class RequestHandler extends IComputationWork{
 
   override def getPIWithDecimals(nbDecimals: Int): Option[BigDecimal] = {
-    val jobDescription = JobDescription("compute", new Array(nbDecimals))
+    val jobDescription = JobDescription("compute", new Array(nbDecimals), classOf[Option[BigDecimal]])
     val computationJob = ComputationJob(jobDescription = jobDescription)
 
     implicit val timeout = Timeout(FiniteDuration(30, TimeUnit.SECONDS))
