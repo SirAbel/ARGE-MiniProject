@@ -7,7 +7,8 @@ import java.time.LocalDateTime
   */
 case class WorkerNodeMonitoringReport(nodeId: String, created: LocalDateTime = LocalDateTime.now(), cpuLoad: Double, memoryUsage: Double) {
   def toMultiLineString =
-    s"""monitoring node $nodeId
+    s"""monitoring node {
+       |nodeId: $nodeId
        |date: $created
        |cpuLoad: $cpuLoad
        |memoryUsage: $memoryUsage

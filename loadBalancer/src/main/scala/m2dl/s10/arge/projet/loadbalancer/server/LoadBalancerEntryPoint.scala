@@ -38,6 +38,8 @@ object LoadBalancerEntryPoint {
         if (xmlrpcServer.isDefined) {
           logger.info("Stopping server...")
           xmlrpcServer.get.stop()
+          logger.info("Stopping loadBalancing ActorSystem")
+          system.terminate()
         }}}, "Shutdown"))
   }
 

@@ -12,7 +12,7 @@ object CPNEntryPoint {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]) = {
 
     var xmlrpcServer: Option[XMLRPCServer] = None
 

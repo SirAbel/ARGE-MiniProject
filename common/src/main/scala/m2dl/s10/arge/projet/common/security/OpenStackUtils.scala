@@ -70,7 +70,7 @@ object OpenStackUtils {
 
     val newServer: ServerCreate = client.compute.servers.serverBuilder.flavor("2").
       image(serverInfo.imageId)
-      .keypairName("ens24key").name(name)
+      .keypairName("mykey").name(name)
       .networks(serverInfo.networksId).userData(userData).build
 
     // Boot the server

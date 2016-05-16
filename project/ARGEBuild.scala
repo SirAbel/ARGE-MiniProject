@@ -13,7 +13,6 @@ object ARGEBuild extends Build {
     ARGEDependencies.OpenStack.core,
     ARGEDependencies.OpenStack.httpClient,
 
-    ARGEDependencies.Logging.slf4j,
     ARGEDependencies.Logging.logbackClassic,
 
     ARGEDependencies.Config.typeSafeConfig,

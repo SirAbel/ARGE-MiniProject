@@ -25,7 +25,7 @@ object LoadGeneratorEntryPoint {
   def main(args: Array[String]) {
 
     try {
-      val loadBalancerUrl = args.lift(1).getOrElse(throw LoadGeneratorException.MissingCallParameter("Missing load balancer url"))
+      val loadBalancerUrl = args.headOption.getOrElse(throw LoadGeneratorException.MissingCallParameter("Missing load balancer url"))
       val client = new XMLRPCClient(new URL(loadBalancerUrl))
 
       generateRandomCharge(client)
@@ -43,13 +43,13 @@ object LoadGeneratorEntryPoint {
 
     def sendBatch(upperLimit: Int): Unit = {
       for(k <- 0 until upperLimit) {
-        val params = Array.fill[Int](1)(DEFAULT_NB_DECIMALS)
-        client.send("compute",params.asInstanceOf[Array[Object]],classOf[Option[BigDecimal]]).foreach(rslt => println(s"computation[$k] - result: $rslt"))
+        val params = Array.fill[Object](1)(Int.box(DEFAULT_NB_DECIMALS))
+        client.send("compute.getPIWithDecimals",params,classOf[Option[BigDecimal]]).foreach(rslt => println(s"computation[$k] - result: $rslt"))
       }
     }
 
     while(true) {
-      sendBatch(LoadType(rndom.nextInt(LoadType.maxId)).id)
+      sendBatch(LoadType.randomValue.id)
       Thread.sleep(FiniteDuration(DEFAULT_BURST_INTERVAL,TimeUnit.MICROSECONDS).toMillis)
     }
   }

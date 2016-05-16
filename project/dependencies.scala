@@ -12,7 +12,6 @@ object ARGEDependencies {
   }
 
   object Logging {
-    val slf4j = "org.slf4j" % "slf4j-log4j12" % "1.2"
     val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.1.3"
   }
 
@@ -36,6 +35,7 @@ object ARGEDependencies {
 
   object Akka {
     val actors = "com.typesafe.akka" % "akka-actor_2.11" % "2.4.4"
+    val slf4j =  "com.typesafe.akka" % "akka-slf4j" % "2.4.4"
   }
 
   object Monitoring {

@@ -18,11 +18,11 @@ object MonitoringActor {
    case class MonitoringBlock(totalStats: HashMap[String, (Double,Double)], currentCycle: Int, conf: Config) {
 
      val cycle = 5.0
-     val minimumMemoryUsage = conf.getInt("app.openstack.defaults.minimumMemoryUsage")
-     val maximumMemoryUsage = conf.getInt("app.openstack.defaults.maximumMemoryUsage")
+     val minimumMemoryUsage = conf.getInt("app.openStack.defaults.minimumMemoryUsage")
+     val maximumMemoryUsage = conf.getInt("app.openStack.defaults.maximumMemoryUsage")
 
-     val minimumCpuLoad = conf.getInt("app.openstack.defaults.minimumCpuLoad")
-     val maximumCpuLoad = conf.getInt("app.openstack.defaults.maximumCpuLoad")
+     val minimumCpuLoad = conf.getInt("app.openStack.defaults.minimumCpuLoad")
+     val maximumCpuLoad = conf.getInt("app.openStack.defaults.maximumCpuLoad")
 
      def getOperation: (Option[Operation],Seq[String]) = {
        var averageStats = HashMap.empty[String, (Double,Double)]
@@ -56,7 +56,7 @@ object MonitoringActor {
 class MonitoringActor(manager: ActorRef) extends Actor with ActorLogging{
 
   var registeredWorkerNodes: HashMap[String, String] = HashMap.empty
-  val schedulerInterval = context.system.settings.config.getInt("app.openstack.defaults.schedulerInterval")
+  val schedulerInterval = context.system.settings.config.getInt("app.openStack.defaults.schedulerInterval")
   var monitoringBlock = MonitoringActor.MonitoringBlock(HashMap.empty,0,context.system.settings.config)
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -90,9 +90,11 @@ class MonitoringActor(manager: ActorRef) extends Actor with ActorLogging{
       context.system.scheduler.scheduleOnce(FiniteDuration(schedulerInterval,TimeUnit.MINUTES),self, StartMonitoring)
 
     case RegisterNode(workerNode) if !registeredWorkerNodes.contains(workerNode.nodeId) =>
+      log.debug(s"Registring node [Id: ${workerNode.nodeId}]")
       registeredWorkerNodes = registeredWorkerNodes + ((workerNode.nodeId, workerNode.serverUrl))
 
     case UnregisterNode(workerNodeId) if registeredWorkerNodes.contains(workerNodeId) =>
+      log.debug(s"Unregistring node [Id: $workerNodeId]")
       registeredWorkerNodes = registeredWorkerNodes - workerNodeId
   }
 
@@ -104,7 +106,7 @@ class MonitoringActor(manager: ActorRef) extends Actor with ActorLogging{
     val url = new URL(workerNodeUrl)
     val params = Array.fill[String](1)(workerNodeId)
 
-    XMLRPCClient.send(url,"monitor", params.asInstanceOf[Array[Object]],classOf[Option[WorkerNodeMonitoringReport]])
+    XMLRPCClient.send(url,"monitor.getMonitoringReport", params.asInstanceOf[Array[Object]],classOf[Option[WorkerNodeMonitoringReport]])
   }
 
   def analyzeMonitoringReports(reports: Seq[WorkerNodeMonitoringReport]): Unit = {
@@ -112,6 +114,7 @@ class MonitoringActor(manager: ActorRef) extends Actor with ActorLogging{
     var stats = monitoringBlock.totalStats
 
     reports.foreach { report =>
+      log.debug(s"analyzing report: ${report.toMultiLineString}")
       stats = stats.get(report.nodeId) match {
         case Some(value) =>
           stats.updated(report.nodeId, (value._1 + report.cpuLoad) -> (value._2 + report.memoryUsage))
@@ -121,6 +124,7 @@ class MonitoringActor(manager: ActorRef) extends Actor with ActorLogging{
       }
     }
 
+    log.debug("Updating monitoring block...")
     monitoringBlock = monitoringBlock.copy(
       totalStats = stats,
       currentCycle = (monitoringBlock.currentCycle + 1) % 5
