@@ -170,6 +170,8 @@ class ManagerActor extends Actor with ActorLogging {
   // uncomment these methods and comment the ones above with the same names                                           //
   // for a node delete simulation use the loadBalancerEntryPoint main method to send a DeleteNode message to the      //
   // managerActor                                                                                                     //
+  // This solution is here only to help check the behaviour of the works framework without the need to use the        //
+  // OpenStack layer used in the deleteWorkerNodeInstance and deleteWorkerNodeInstance methods                        //
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /*private def createNewWorkerNodeInstance(): WorkerNode = {
