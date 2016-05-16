@@ -37,7 +37,7 @@ object MonitoringActor {
        }
 
        val overloadedNodes = averageStats.count {
-         case (id, values) => values._1 >= maximumMemoryUsage || values._2 >= maximumMemoryUsage
+         case (id, values) => values._1 >= maximumCpuLoad || values._2 >= maximumMemoryUsage
        }
 
        val idleNodes = averageStats.filter {
@@ -127,13 +127,12 @@ class MonitoringActor(manager: ActorRef) extends Actor with ActorLogging{
     )
 
     if(monitoringBlock.currentCycle == 0) {
-      val (operation, nodes) = monitoringBlock.getOperation
 
-      operation match {
-        case Some(DeleteWorkerInstance(_)) =>
+      monitoringBlock.getOperation match {
+        case (Some(DeleteWorkerInstance(_)),nodes) =>
           nodes.foreach(manager ! DeleteWorkerInstance(_))
 
-        case Some(AddWorkerInstance) =>
+        case (Some(AddWorkerInstance),_) =>
           manager ! AddWorkerInstance
 
         case _ =>

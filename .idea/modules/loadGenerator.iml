@@ -20,6 +20,7 @@
       <excludeFolder url="file://$MODULE_DIR$/../../loadGenerator/target" />
       <excludeFolder url="file://$MODULE_DIR$/../../loadGenerator/target/resolution-cache" />
       <excludeFolder url="file://$MODULE_DIR$/../../loadGenerator/target/streams" />
+      <excludeFolder url="file://$MODULE_DIR$/../../loadGenerator/target/universal" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

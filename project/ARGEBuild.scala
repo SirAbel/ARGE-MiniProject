@@ -1,6 +1,7 @@
 import sbt._
 import sbt.Keys._
 import ARGEBuildSettings.RichSettingsProject
+import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
 
 object ARGEBuild extends Build {
 
@@ -31,12 +32,12 @@ object ARGEBuild extends Build {
 
   )
 
-  lazy val loadGenerator = ARGEBuildSettings.project("loadGenerator").dependsOn(common)
+  lazy val loadGenerator = ARGEBuildSettings.project("loadGenerator").dependsOn(common).enablePlugins(JavaAppPackaging)
 
-  lazy val computeNode = ARGEBuildSettings.project("computeNode").dependsOn(common)
+  lazy val computeNode = ARGEBuildSettings.project("computeNode").dependsOn(common).enablePlugins(JavaAppPackaging)
 
   lazy val loadBalancer = ARGEBuildSettings.project("loadBalancer").dependsOn(common).libraryDependencies(
     ARGEDependencies.Akka.actors
-  )
+  ).enablePlugins(JavaAppPackaging)
 
 }

@@ -20,6 +20,7 @@
       <excludeFolder url="file://$MODULE_DIR$/../../computeNode/target" />
       <excludeFolder url="file://$MODULE_DIR$/../../computeNode/target/resolution-cache" />
       <excludeFolder url="file://$MODULE_DIR$/../../computeNode/target/streams" />
+      <excludeFolder url="file://$MODULE_DIR$/../../computeNode/target/universal" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

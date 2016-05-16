@@ -24,6 +24,7 @@ class ManagerActor extends Actor with ActorLogging {
 
   var runningJobs: Set[String] = Set.empty
   var runningWorkerNodeInstances: HashMap[String, WorkerNode] = initRunningNodes(minRunningNodes)
+  var runningDeletableWorkerInstances: HashMap[String, WorkerNode] = HashMap.empty
   var roundRobinWorkerNodesSelector: Iterator[String] = Iterator.continually(runningWorkerNodeInstances.keySet).flatten
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -65,10 +66,14 @@ class ManagerActor extends Actor with ActorLogging {
           case workerNode if workerNode.runningWorks == 0 =>
             log.debug("deleting worker node...")
             deleteWorkerNodeInstance(workerNode)
+            runningWorkerNodeInstances = runningWorkerNodeInstances - workerNode.nodeId
+            roundRobinWorkerNodesSelector = Iterator.continually(runningWorkerNodeInstances.keySet).flatten
           case workerNode =>
             log.debug("This worker node has running tasks - marking as pending")
             val updatedNode = workerNode.copy(pendingDelete = true)
-            runningWorkerNodeInstances = runningWorkerNodeInstances.updated(workerNodeId, updatedNode)
+            runningWorkerNodeInstances = runningWorkerNodeInstances - updatedNode.nodeId
+            roundRobinWorkerNodesSelector = Iterator.continually(runningWorkerNodeInstances.keySet).flatten
+            runningDeletableWorkerInstances = runningDeletableWorkerInstances + ((updatedNode.nodeId, updatedNode))
         }
       }
 
@@ -90,8 +95,18 @@ class ManagerActor extends Actor with ActorLogging {
         case workerNode =>
           val updatedWorkerNode = workerNode.copy(runningWorks = workerNode.runningWorks - 1)
           runningWorkerNodeInstances = runningWorkerNodeInstances.updated(workerNodeId,updatedWorkerNode)
-          if(updatedWorkerNode.runningWorks == 0 && updatedWorkerNode.pendingDelete){
+      }
+
+    case JobPerformed(workerNodeId: String, jobId: String) if runningJobs.contains(jobId) && runningDeletableWorkerInstances.contains(workerNodeId) =>
+      log.debug(s"Job [id=$jobId] - completed")
+      runningJobs -= jobId
+      runningDeletableWorkerInstances.get(workerNodeId).collect {
+        case workerNode =>
+          val updatedWorkerNode = workerNode.copy(runningWorks = workerNode.runningWorks - 1)
+          runningDeletableWorkerInstances = runningDeletableWorkerInstances.updated(workerNodeId,updatedWorkerNode)
+          if(updatedWorkerNode.runningWorks == 0){
             deleteWorkerNodeInstance(updatedWorkerNode)
+            runningDeletableWorkerInstances = runningDeletableWorkerInstances - workerNode.nodeId
           }
       }
   }
@@ -125,8 +140,6 @@ class ManagerActor extends Actor with ActorLogging {
 
     OpenStackUtils.delete(client,workerNode.nodeId)
 
-    runningWorkerNodeInstances = runningWorkerNodeInstances - workerNode.nodeId
-    roundRobinWorkerNodesSelector = Iterator.continually(runningWorkerNodeInstances.keySet).flatten
     monitoringActor ! UnregisterNode(workerNode.nodeId)
 
   }
