@@ -6,6 +6,7 @@ import m2dl.s10.arge.projet.common.security.OpenStackUtils
 import m2dl.s10.arge.projet.loadbalancer.core.model.WorkerNode
 import m2dl.s10.arge.projet.loadbalancer.core.protocol.LoadBalancerProtocol._
 import m2dl.s10.arge.projet.loadbalancer.core.util.LoadBalancerException
+import org.openstack4j.model.compute.Addresses
 
 import scala.collection.immutable.HashMap
 
@@ -125,7 +126,7 @@ class ManagerActor extends Actor with ActorLogging {
 
     val server = OpenStackUtils.createServer(client, prefix, userData)
     val serverUrlOption = Option(server.getAddresses).collect {
-      case addresses if !addresses.getAddresses().isEmpty =>
+      case addresses: Addresses if !addresses.getAddresses().isEmpty =>
         addresses.getAddresses().values().iterator().next().get(0).getAddr
     }
 
